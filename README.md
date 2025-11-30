@@ -1,7 +1,3 @@
-# OrgSemanticSearch
-A FastAPI-based backend that loads an organizations CSV dataset, precomputes semantic embeddings, and provides a collection of API endpoints. his service is optimized using caching, vectorized filtering, and embedding precomputation.
-
-
 # FastAPI Hybrid Search Service
 
 This project provides a **FastAPI-based hybrid search API** leveraging both **keyword search** and **semantic search** using `SentenceTransformer`.  
@@ -86,11 +82,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 # Expose FastAPI port
-EXPOSE 8000
-
-# Run with Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
 
 ---
 
