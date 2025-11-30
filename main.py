@@ -129,7 +129,7 @@ async def get_number_of_employees(df: pd.DataFrame = Depends(get_dataframe)):
     
 
 @app.get("/organizations-filtered")
-def get_organizations_filtered(
+async def get_organizations_filtered(
     request: Request,
     name: Optional[str] = Query(None, description="Partial, case-insensitive name match"),
     country: Optional[str] = Query(None, description="Exact country match"),
