@@ -11,7 +11,7 @@ A Dockerfile is included so the service can be easily containerized.
   - Keyword-ranking hybrid search
   - Caching for fast startup
 - Docker-ready deployment
-- Uses `organizations-100.csv` sample dataset for demonstration
+- Uses SQLite DB sample dataset for demonstration
 
 ---
 
@@ -19,10 +19,14 @@ A Dockerfile is included so the service can be easily containerized.
 ```
 /app
 │── main.py
+│── convert_csv_to_sqlite.py
+│── add_table.py
+│── test_main.py
 │── organizations-100.csv
 requirements.txt
 Dockerfile
 README.md
+organizations.db
 ```
 
 ---
@@ -37,6 +41,7 @@ uvicorn
 pandas
 numpy
 sentence-transformers
+SQLite3
 ```
 
 ---
