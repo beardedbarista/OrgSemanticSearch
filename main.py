@@ -1,4 +1,5 @@
 from fastapi import FastAPI,HTTPException, Depends, Query, Request, Response
+from contextlib import asynccontextmanager
 import pandas as pd
 import sqlite3
 import logging
@@ -10,8 +11,9 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import datetime
 
-# Load embedding model once at startup
+# Load embedding model and DB once at startup
 model = SentenceTransformer("all-MiniLM-L6-v2")
+db_connection = None
 
 # Configure logging
 logging.basicConfig(
@@ -23,17 +25,30 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global db_connection
+    db_connection = sqlite3.connect("organizations.db", check_same_thread=False)
+    db_connection.row_factory = sqlite3.Row
+    logger.info("Database connection established at startup")
+
+    yield  
+
+    db_connection.close()
+    logger.info("Database connection closed")
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+
 # cache function to load the Database once and resuse
 @lru_cache(maxsize=1)
 def get_dataframe() -> pd.DataFrame:
-    
-    #Loads data from SQLite, computes embeddings, and cached at startup.
+    global db_connection
 
-    conn = sqlite3.connect("organizations.db", check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-
-    df = pd.read_sql_query("SELECT * FROM organizations", conn)
-    conn.close()
+    df = pd.read_sql_query("SELECT * FROM organizations", db_connection)
 
     if df.empty:
         raise RuntimeError("No data found in database")
@@ -58,7 +73,6 @@ def get_dataframe() -> pd.DataFrame:
     logger.info(f"SQLite + embeddings ready: {len(df)} organizations")
     return df
  
-app = FastAPI()
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
